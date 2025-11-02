@@ -2,9 +2,11 @@ services:
   user-service:
     image: ayushnayak123/user-service:${TAG}
     ports:
-      - "5001:5000"
+      - "3001:3001"
+    container_name: user-service
 
   order-service:
     image: ayushnayak123/order-service:${TAG}
     ports:
-      - "5002:5000"
+      - "3002:3002"
+    container_name: order-service
