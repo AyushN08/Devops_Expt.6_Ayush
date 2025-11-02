@@ -3,7 +3,6 @@ pipeline {
 
   environment {
     DOCKERHUB_USER = 'ayushnayak123'
-    DOCKERHUB_CREDS = 'DockerCred'
     BUILD_TAG = "v${env.BUILD_NUMBER}"
   }
 
@@ -21,18 +20,6 @@ pipeline {
         docker build -t %DOCKERHUB_USER%/user-service:%BUILD_TAG% ./services/user-service
         docker build -t %DOCKERHUB_USER%/order-service:%BUILD_TAG% ./services/order-service
         """
-      }
-    }
-
-    stage('Login & Push to Docker Hub') {
-      steps {
-        withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDS}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-          bat """
-          echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
-          docker push %DOCKERHUB_USER%/user-service:%BUILD_TAG%
-          docker push %DOCKERHUB_USER%/order-service:%BUILD_TAG%
-          """
-        }
       }
     }
 
@@ -58,7 +45,7 @@ pipeline {
 
   post {
     success {
-      echo "✅ Pipeline completed successfully!"
+      echo "✅ Pipeline completed successfully (Build-only, no push)!"
     }
     failure {
       echo "❌ Pipeline failed! Check console output."
