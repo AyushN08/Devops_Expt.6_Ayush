@@ -2,8 +2,8 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_USER = 'YOUR_DOCKERHUB_USERNAME'   // change this
-    DOCKERHUB_CREDS = 'DockerCred'               // Jenkins credentials ID
+    DOCKERHUB_USER = 'ayushnayak123'    // change to your username
+    DOCKERHUB_CREDS = 'DockerCred'
     BUILD_TAG = "v${env.BUILD_NUMBER}"
   }
 
@@ -17,8 +17,8 @@ pipeline {
     stage('Build Docker Images') {
       steps {
         script {
-          sh "docker build -t ${DOCKERHUB_USER}/user-service:${BUILD_TAG} ./services/user-service"
-          sh "docker build -t ${DOCKERHUB_USER}/order-service:${BUILD_TAG} ./services/order-service"
+          bat "docker build -t %DOCKERHUB_USER%/user-service:%BUILD_TAG% ./services/user-service"
+          bat "docker build -t %DOCKERHUB_USER%/order-service:%BUILD_TAG% ./services/order-service"
         }
       }
     }
@@ -27,9 +27,11 @@ pipeline {
       steps {
         script {
           withCredentials([usernamePassword(credentialsId: "${DOCKERHUB_CREDS}", usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-            sh 'echo $PASSWORD | docker login -u $USERNAME --password-stdin'
-            sh "docker push ${DOCKERHUB_USER}/user-service:${BUILD_TAG}"
-            sh "docker push ${DOCKERHUB_USER}/order-service:${BUILD_TAG}"
+            bat """
+              echo %PASSWORD% | docker login -u %USERNAME% --password-stdin
+              docker push %DOCKERHUB_USER%/user-service:%BUILD_TAG%
+              docker push %DOCKERHUB_USER%/order-service:%BUILD_TAG%
+            """
           }
         }
       }
@@ -38,8 +40,8 @@ pipeline {
     stage('Deploy Using Docker Compose') {
       steps {
         script {
-          sh "docker-compose down || true"
-          sh "TAG=${BUILD_TAG} docker-compose up -d --no-build"
+          bat "docker compose down || exit 0"
+          bat "set TAG=%BUILD_TAG% && docker compose up -d --no-build"
         }
       }
     }
@@ -48,19 +50,15 @@ pipeline {
       steps {
         script {
           sleep 5
-          sh "curl -sS http://localhost:3001/health || (echo 'user-service unhealthy' && exit 1)"
-          sh "curl -sS http://localhost:3002/health || (echo 'order-service unhealthy' && exit 1)"
+          bat "curl -sS http://localhost:3001/health"
+          bat "curl -sS http://localhost:3002/health"
         }
       }
     }
   }
 
   post {
-    success {
-      echo '✅ Pipeline completed successfully!'
-    }
-    failure {
-      echo '❌ Pipeline failed! Check console logs.'
-    }
+    success { echo "✅ Pipeline completed successfully!" }
+    failure { echo "❌ Pipeline failed! Check console output." }
   }
 }
