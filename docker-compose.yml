@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  user-service:
+    image: <YOUR_DOCKERHUB_USERNAME>/user-service:${TAG:-latest}
+    ports:
+      - "3001:3001"
+    restart: unless-stopped
+
+  order-service:
+    image: <YOUR_DOCKERHUB_USERNAME>/order-service:${TAG:-latest}
+    ports:
+      - "3002:3002"
+    restart: unless-stopped
