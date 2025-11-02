@@ -1,14 +1,10 @@
-version: "3.8"
-
 services:
   user-service:
-    image: ayushnayak123/user-service:${TAG:-latest}
+    image: ayushnayak123/user-service:${TAG}
     ports:
-      - "3001:3001"
-    restart: unless-stopped
+      - "5001:5000"
 
   order-service:
-    image: ayushnayak123/order-service:${TAG:-latest}
+    image: ayushnayak123/order-service:${TAG}
     ports:
-      - "3002:3002"
-    restart: unless-stopped
+      - "5002:5000"
