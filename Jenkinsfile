@@ -2,16 +2,14 @@ pipeline {
   agent any
 
   environment {
-    DOCKERHUB_USER = 'ayushnayak123'    // change to your username
+    DOCKERHUB_USER = 'ayushnayak123'
     DOCKERHUB_CREDS = 'DockerCred'
     BUILD_TAG = "v${env.BUILD_NUMBER}"
   }
 
   stages {
     stage('Checkout Code') {
-      steps {
-        checkout scm
-      }
+      steps { checkout scm }
     }
 
     stage('Build Docker Images') {
@@ -40,8 +38,11 @@ pipeline {
     stage('Deploy Using Docker Compose') {
       steps {
         script {
-          bat "docker compose down || exit 0"
-          bat "set TAG=%BUILD_TAG% && docker compose up -d --no-build"
+          bat """
+          echo TAG=%BUILD_TAG% > .env
+          docker compose down || exit 0
+          docker compose up -d --no-build
+          """
         }
       }
     }
